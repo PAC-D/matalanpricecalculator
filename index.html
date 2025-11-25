@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carton Price Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        select:disabled, input[type="number"]:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            color: #999;
+        }
+        
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .dimension-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .result-value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .custom-message {
+            color: #e74c3c;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            padding: 15px;
+            background: #ffe5e5;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>🏭 Carton Price Calculator</h1>
+        
+        <div class="form-group">
+            <label for="flute">Flute Type</label>
+            <select id="flute" onchange="updateCartonStyle()">
+                <option value="">Select Flute Type</option>
+                <option value="c-flute">C-Flute</option>
+                <option value="bc-flute">BC-Flute</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="cartonStyle">Carton Style</label>
+            <select id="cartonStyle" onchange="updateCartonSelection()" disabled>
+                <option value="">Select Carton Style</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="cartonSelection">Carton Selection</label>
+            <select id="cartonSelection" onchange="updateDimensions()" disabled>
+                <option value="">Select Carton</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Dimensions (mm)</label>
+            <div class="dimension-group">
+                <div>
+                    <label for="length" style="font-size: 12px; margin-bottom: 5px;">Length (L)</label>
+                    <input type="number" id="length" placeholder="L" min="0" disabled>
+                </div>
+                <div>
+                    <label for="width" style="font-size: 12px; margin-bottom: 5px;">Width (W)</label>
+                    <input type="number" id="width" placeholder="W" min="0" disabled>
+                </div>
+                <div>
+                    <label for="height" style="font-size: 12px; margin-bottom: 5px;">Height (H)</label>
+                    <input type="number" id="height" placeholder="H" min="0" disabled>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="quantity">Carton Quantity</label>
+            <input type="number" id="quantity" placeholder="Enter quantity" min="1">
+        </div>
+        
+        <button class="calculate-btn" onclick="calculate()">Calculate</button>
+        
+        <div class="results" id="results">
+            <div class="result-item">
+                <span class="result-label">Sheet Length (L):</span>
+                <span class="result-value" id="sheetLength">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Sheet Width (W):</span>
+                <span class="result-value" id="sheetWidth">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Area per Carton:</span>
+                <span class="result-value" id="areaPerCarton">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Area:</span>
+                <span class="result-value" id="totalArea">-</span>
+            </div>
+            <div class="result-item" id="unitPriceRow" style="display: none;">
+                <span class="result-label">Unit Price:</span>
+                <span class="result-value" id="unitPrice">-</span>
+            </div>
+            <div class="result-item" id="totalPriceRow" style="display: none;">
+                <span class="result-label">Total Price:</span>
+                <span class="result-value" id="totalPrice">-</span>
+            </div>
+            <div class="result-item" id="rebateRow" style="display: none;">
+                <span class="result-label">Rebates for Matalan:</span>
+                <span class="result-value" id="rebate">-</span>
+            </div>
+            <div class="result-item" id="pacdRow" style="display: none;">
+                <span class="result-label">5% For PacD:</span>
+                <span class="result-value" id="pacd">-</span>
+            </div>
+            <div id="customMessage" class="custom-message" style="display: none;">
+                Please contact packaging supplier for pricing
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cartonData = {
+            'A1': { L: 495, W: 285, H: 375, price: 0.97 },
+            'A2': { L: 495, W: 285, H: 310, price: 0.88 },
+            'A3': { L: 495, W: 285, H: 260, price: 0.81 },
+            'B1': { L: 595, W: 285, H: 375, price: 1.10 },
+            'B2': { L: 595, W: 285, H: 310, price: 0.99 },
+            'B3': { L: 595, W: 285, H: 260, price: 0.90 },
+            'C1': { L: 595, W: 325, H: 375, price: 1.22 },
+            'C2': { L: 595, W: 325, H: 310, price: 1.10 },
+            'C3': { L: 595, W: 325, H: 260, price: 1.02 },
+            'D1': { L: 595, W: 380, H: 375, price: 1.39 },
+            'D2': { L: 595, W: 380, H: 310, price: 1.27 },
+            'D3': { L: 595, W: 380, H: 260, price: 1.18 },
+            'R-FPA': { L: 495, W: 285, H: null, price: 1.03 },
+            'R-FPB': { L: 595, W: 285, H: null, price: 1.03 },
+            'R-FPC': { L: 595, W: 325, H: null, price: 1.03 },
+            'R-FPD': { L: 595, W: 380, H: null, price: 1.03 }
+        };
+
+        function updateCartonStyle() {
+            const flute = document.getElementById('flute').value;
+            const cartonStyleSelect = document.getElementById('cartonStyle');
+            const cartonSelectionSelect = document.getElementById('cartonSelection');
+            
+            cartonStyleSelect.innerHTML = '<option value="">Select Carton Style</option>';
+            cartonSelectionSelect.innerHTML = '<option value="">Select Carton</option>';
+            cartonStyleSelect.disabled = true;
+            cartonSelectionSelect.disabled = true;
+            
+            document.getElementById('results').classList.remove('show');
+            
+            if (flute === 'bc-flute') {
+                cartonStyleSelect.innerHTML += '<option value="standard">Standard Carton - Singles</option>';
+                cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                cartonStyleSelect.disabled = false;
+            } else if (flute === 'c-flute') {
+                cartonStyleSelect.innerHTML += '<option value="ratio">Ratio Carton</option>';
+                cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                cartonStyleSelect.disabled = false;
+            }
+        }
+
+        function updateCartonSelection() {
+            const cartonStyle = document.getElementById('cartonStyle').value;
+            const cartonSelectionSelect = document.getElementById('cartonSelection');
+            
+            cartonSelectionSelect.innerHTML = '<option value="">Select Carton</option>';
+            cartonSelectionSelect.disabled = true;
+            
+            document.getElementById('results').classList.remove('show');
+            
+            if (cartonStyle === 'standard') {
+                const options = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3', 'D1', 'D2', 'D3'];
+                options.forEach(opt => {
+                    cartonSelectionSelect.innerHTML += `<option value="${opt}">${opt}</option>`;
+                });
+                cartonSelectionSelect.disabled = false;
+            } else if (cartonStyle === 'ratio') {
+                const options = ['R-FPA', 'R-FPB', 'R-FPC', 'R-FPD'];
+                options.forEach(opt => {
+                    cartonSelectionSelect.innerHTML += `<option value="${opt}">${opt}</option>`;
+                });
+                cartonSelectionSelect.disabled = false;
+            } else if (cartonStyle === 'custom') {
+                cartonSelectionSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                cartonSelectionSelect.disabled = false;
+                cartonSelectionSelect.value = 'custom';
+                clearDimensions();
+            }
+        }
+
+        function updateDimensions() {
+            const selection = document.getElementById('cartonSelection').value;
+            const lengthInput = document.getElementById('length');
+            const widthInput = document.getElementById('width');
+            const heightInput = document.getElementById('height');
+            
+            if (selection === 'custom') {
+                // Enable all fields for custom carton
+                lengthInput.disabled = false;
+                widthInput.disabled = false;
+                heightInput.disabled = false;
+            } else if (selection && cartonData[selection]) {
+                const data = cartonData[selection];
+                lengthInput.value = data.L || '';
+                widthInput.value = data.W || '';
+                heightInput.value = data.H || '';
+                
+                // Check if it's a ratio carton (R-FPA, R-FPB, R-FPC, R-FPD)
+                const isRatioCarton = selection.startsWith('R-');
+                
+                if (isRatioCarton) {
+                    // For ratio cartons: length and width locked, height editable
+                    lengthInput.disabled = true;
+                    widthInput.disabled = true;
+                    heightInput.disabled = false;
+                } else {
+                    // For standard cartons: all fields locked
+                    lengthInput.disabled = true;
+                    widthInput.disabled = true;
+                    heightInput.disabled = true;
+                }
+            } else {
+                // No selection - disable all
+                lengthInput.disabled = true;
+                widthInput.disabled = true;
+                heightInput.disabled = true;
+            }
+            
+            document.getElementById('results').classList.remove('show');
+        }
+
+        function clearDimensions() {
+            document.getElementById('length').value = '';
+            document.getElementById('width').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('length').disabled = false;
+            document.getElementById('width').disabled = false;
+            document.getElementById('height').disabled = false;
+        }
+
+        function calculate() {
+            const flute = document.getElementById('flute').value;
+            const selection = document.getElementById('cartonSelection').value;
+            const length = parseFloat(document.getElementById('length').value);
+            const width = parseFloat(document.getElementById('width').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            
+            if (!flute || !length || !width || !height || !quantity) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const L = (length + width) * 2 + 15;
+            const W = (width + height) - 10;
+            const areaPerCarton = (L * W * 1.1) / 1000000;
+            const totalArea = areaPerCarton * quantity;
+            
+            document.getElementById('sheetLength').textContent = L.toFixed(2) + ' mm';
+            document.getElementById('sheetWidth').textContent = W.toFixed(2) + ' mm';
+            document.getElementById('areaPerCarton').textContent = areaPerCarton.toFixed(6) + ' m²';
+            document.getElementById('totalArea').textContent = totalArea.toFixed(6) + ' m²';
+            
+            const isCustom = selection === 'custom';
+            
+            if (isCustom) {
+                document.getElementById('unitPriceRow').style.display = 'none';
+                document.getElementById('totalPriceRow').style.display = 'none';
+                document.getElementById('rebateRow').style.display = 'none';
+                document.getElementById('pacdRow').style.display = 'none';
+                document.getElementById('customMessage').style.display = 'block';
+            } else {
+                const unitPrice = cartonData[selection].price;
+                const totalPrice = unitPrice * quantity;
+                
+                const rebatePercent = flute === 'bc-flute' ? 0.04 : 0.10;
+                const rebate = totalPrice * rebatePercent;
+                
+                const pacdPercent = flute === 'bc-flute' ? 0.05 : 0.10;
+                const pacd = (totalPrice - rebate) * pacdPercent;
+                
+                document.getElementById('unitPrice').textContent = '$' + unitPrice.toFixed(2);
+                document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
+                document.getElementById('rebate').textContent = '$' + rebate.toFixed(2) + ' (' + (rebatePercent * 100) + '%)';
+                document.getElementById('pacd').textContent = '$' + pacd.toFixed(2) + ' (' + (pacdPercent * 100) + '%)';
+                
+                document.getElementById('unitPriceRow').style.display = 'flex';
+                document.getElementById('totalPriceRow').style.display = 'flex';
+                document.getElementById('rebateRow').style.display = 'flex';
+                document.getElementById('pacdRow').style.display = 'flex';
+                document.getElementById('customMessage').style.display = 'none';
+            }
+            
+            document.getElementById('results').classList.add('show');
+        }
+    </script>
+</body>
+</html>
