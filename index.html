@@ -227,7 +227,7 @@
                 <span class="result-value" id="totalArea">-</span>
             </div>
             <div class="result-item" id="unitPriceRow" style="display: none;">
-                <span class="result-label">SQM Price:</span>
+                <span class="result-label">Unit Price per Carton:</span>
                 <span class="result-value" id="unitPrice">-</span>
             </div>
             <div class="result-item" id="totalPriceRow" style="display: none;">
@@ -260,22 +260,22 @@
         // **********************************************
 
         const cartonData = {
-            'A1': { L: 495, W: 285, H: 375, sqmPrice: 0.97 },
-            'A2': { L: 495, W: 285, H: 310, sqmPrice: 0.88 },
-            'A3': { L: 495, W: 285, H: 260, sqmPrice: 0.81 },
-            'B1': { L: 595, W: 285, H: 375, sqmPrice: 1.10 },
-            'B2': { L: 595, W: 285, H: 310, sqmPrice: 0.99 },
-            'B3': { L: 595, W: 285, H: 260, sqmPrice: 0.90 },
-            'C1': { L: 595, W: 325, H: 375, sqmPrice: 1.22 },
-            'C2': { L: 595, W: 325, H: 310, sqmPrice: 1.10 },
-            'C3': { L: 595, W: 325, H: 260, sqmPrice: 1.02 },
-            'D1': { L: 595, W: 380, H: 375, sqmPrice: 1.39 },
-            'D2': { L: 595, W: 380, H: 310, sqmPrice: 1.27 },
-            'D3': { L: 595, W: 380, H: 260, sqmPrice: 1.18 },
-            'R-FPA': { L: 495, W: 285, H: null, sqmPrice: 1.03 },
-            'R-FPB': { L: 595, W: 285, H: null, sqmPrice: 1.03 },
-            'R-FPC': { L: 595, W: 325, H: null, sqmPrice: 1.03 },
-            'R-FPD': { L: 595, W: 380, H: null, sqmPrice: 1.03 }
+            'A1': { L: 495, W: 285, H: 375, unitPrice: 0.97 },
+            'A2': { L: 495, W: 285, H: 310, unitPrice: 0.88 },
+            'A3': { L: 495, W: 285, H: 260, unitPrice: 0.81 },
+            'B1': { L: 595, W: 285, H: 375, unitPrice: 1.10 },
+            'B2': { L: 595, W: 285, H: 310, unitPrice: 0.99 },
+            'B3': { L: 595, W: 285, H: 260, unitPrice: 0.90 },
+            'C1': { L: 595, W: 325, H: 375, unitPrice: 1.22 },
+            'C2': { L: 595, W: 325, H: 310, unitPrice: 1.10 },
+            'C3': { L: 595, W: 325, H: 260, unitPrice: 1.02 },
+            'D1': { L: 595, W: 380, H: 375, unitPrice: 1.39 },
+            'D2': { L: 595, W: 380, H: 310, unitPrice: 1.27 },
+            'D3': { L: 595, W: 380, H: 260, unitPrice: 1.18 },
+            'R-FPA': { L: 495, W: 285, H: null, unitPrice: 1.03 },
+            'R-FPB': { L: 595, W: 285, H: null, unitPrice: 1.03 },
+            'R-FPC': { L: 595, W: 325, H: null, unitPrice: 1.03 },
+            'R-FPD': { L: 595, W: 380, H: null, unitPrice: 1.03 }
         };
 
         const allResultRows = [
@@ -464,8 +464,19 @@
             const isCustom = selection === 'custom';
             
             if (!isCustom) {
-                const sqmPrice = cartonData[selection].sqmPrice;
-                const totalPrice = totalArea * sqmPrice;
+                const priceValue = cartonData[selection].unitPrice;
+                let totalPrice;
+                
+                // BC-Flute: price per carton, C-Flute: price per sqm
+                if (flute === 'bc-flute') {
+                    totalPrice = quantity * priceValue;
+                    document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
+                    document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'SQM Price:';
+                } else if (flute === 'c-flute') {
+                    totalPrice = totalArea * priceValue;
+                    document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
+                    document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'SQM Price:';
+                }
                 
                 const rebatePercent = flute === 'bc-flute' ? 0.05 : 0.10;
                 const rebate = totalPrice * rebatePercent;
@@ -479,7 +490,6 @@
                 document.getElementById('rebateLabel').textContent = `Rebates for Matalan (${rebatePercent * 100}%):`;
                 document.getElementById('pacdLabel').textContent = `For PacD (${pacdPercent * 100}%):`;
 
-                document.getElementById('unitPrice').textContent = '$' + sqmPrice.toFixed(2);
                 document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
                 document.getElementById('rebate').textContent = '$' + rebate.toFixed(2);
                 document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
