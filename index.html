@@ -358,7 +358,7 @@
                 </label>
                 <label class="marking-label">
                     <input type="radio" name="marking" value="label"> 
-                    Label Print (+ $0.06 per carton)
+                    Label Print (+ $0.06 per label)
                 </label>
                 <label class="marking-label">
                     <input type="radio" name="marking" value="none"> 
@@ -640,28 +640,34 @@
                 const pacdPercent = flute === 'bc-flute' ? 0.04 : 0.09;
                 const pacd = (totalPrice - rebate) * pacdPercent;
                 
-                const supplierPrice = totalPrice - rebate - pacd;
-
-                document.getElementById('rebateLabel').textContent = `Rebates for Matalan (${rebatePercent * 100}%):`;
-                document.getElementById('pacdLabel').textContent = `For PacD (${pacdPercent * 100}%):`;
-
-                document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
-                document.getElementById('rebate').textContent = '$' + rebate.toFixed(2);
-                document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
-                document.getElementById('supplierPrice').textContent = '$' + supplierPrice.toFixed(2);
-
+                // Calculate marking cost FIRST
+                let markingCost = 0;
                 if (quantity < 100) {
                     const markingType = document.querySelector('input[name="marking"]:checked').value;
-                    let markingCost = 0;
                     
                     if (markingType === 'print') {
                         markingCost = 20.00; 
                     } else if (markingType === 'label') {
                         markingCost = quantity * 0.06;
-                    } else {
-                        markingCost = 0;
                     }
+                }
 
+                // THEN calculate supplier price
+                const supplierPrice = totalPrice - rebate - pacd + markingCost;
+
+                // Update labels
+                document.getElementById('rebateLabel').textContent = `Rebates for Matalan (${rebatePercent * 100}%):`;
+                document.getElementById('pacdLabel').textContent = `For PacD (${pacdPercent * 100}%):`;
+
+                // Update all price displays
+                document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
+                document.getElementById('rebate').textContent = '$' + rebate.toFixed(2);
+                document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
+                document.getElementById('supplierPrice').textContent = '$' + supplierPrice.toFixed(2);
+                
+                // Handle marking price display
+                if (quantity < 100) {
+                    const markingType = document.querySelector('input[name="marking"]:checked').value;
                     const priceWithMarking = totalPrice + markingCost;
                     document.getElementById('markingPrice').textContent = '$' + priceWithMarking.toFixed(2);
                     
@@ -670,6 +676,7 @@
                     }
                 }
 
+                // Show/hide rows based on role
                 if (role === 'admin') {
                     document.getElementById('unitPriceRow').style.display = 'flex';
                     document.getElementById('totalPriceRow').style.display = 'flex';
