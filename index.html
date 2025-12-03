@@ -391,12 +391,12 @@
                 <span class="result-value" id="unitPrice">-</span>
             </div>
             <div class="result-item" id="totalPriceRow" style="display: none;">
-                <span class="result-label">Total Price (LC Price):</span>
+                <span class="result-label" id="totalPriceLabel">Total Price (LC Price):</span>
                 <span class="result-value" id="totalPrice">-</span>
             </div>
 
             <div class="result-item" id="markingPriceRow" style="display: none;">
-                <span class="result-label">Price with Carton Marking:</span>
+                <span class="result-label">Price with Carton Marking (LC Price):</span>
                 <span class="result-value" id="markingPrice">-</span>
             </div>
 
@@ -665,7 +665,8 @@
                 document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
                 document.getElementById('supplierPrice').textContent = '$' + supplierPrice.toFixed(2);
                 
-                // Handle marking price display
+                // Handle marking price display and update labels
+                let showMarkingRow = false;
                 if (quantity < 100) {
                     const markingType = document.querySelector('input[name="marking"]:checked').value;
                     const priceWithMarking = totalPrice + markingCost;
@@ -673,7 +674,15 @@
                     
                     if ((role === 'admin' || role === 'garment_supplier') && markingType !== 'none') {
                         document.getElementById('markingPriceRow').style.display = 'flex';
+                        showMarkingRow = true;
                     }
+                }
+
+                // Update Total Price label based on marking row visibility
+                if (showMarkingRow) {
+                    document.getElementById('totalPriceLabel').textContent = 'Total Price:';
+                } else {
+                    document.getElementById('totalPriceLabel').textContent = 'Total Price (LC Price):';
                 }
 
                 // Show/hide rows based on role
