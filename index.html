@@ -589,12 +589,16 @@
             let L, W, areaPerCarton;
 
             if (flute === 'bc-flute') {
-                L = (length + width) * 2 + 11;
-                W = (height + width) - 16;
-                areaPerCarton = (L * W) / 1000000;
-                
                 if (cartonStyle === 'custom') {
-                    areaPerCarton = areaPerCarton * 1.1;
+                    // Custom cartons use C-flute calculation
+                    L = (length + width) * 2 + 15;
+                    W = (width + height) - 10;
+                    areaPerCarton = (L * W * 1.025) / 1000000;
+                } else {
+                    // Standard BC-flute cartons
+                    L = (length + width) * 2 + 11;
+                    W = (height + width) - 16;
+                    areaPerCarton = (L * W) / 1000000;
                 }
             } else if (flute === 'c-flute') {
                 L = (length + width) * 2 + 15;
@@ -620,92 +624,100 @@
 
             const isCustom = selection === 'custom';
             
+            let priceValue, totalPrice, rebatePercent, pacdPercent;
+            
             if (!isCustom) {
-                const priceValue = cartonData[selection].unitPrice;
-                let totalPrice;
+                priceValue = cartonData[selection].unitPrice;
                 
                 if (flute === 'bc-flute') {
                     totalPrice = quantity * priceValue;
                     document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
                     document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'Unit Price:';
+                    rebatePercent = 0.05;
+                    pacdPercent = 0.04;
                 } else if (flute === 'c-flute') {
-                    totalPrice = totalArea * priceValue ;
+                    totalPrice = totalArea * priceValue;
                     document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
                     document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'SQM Price:';
+                    rebatePercent = 0.10;
+                    pacdPercent = 0.075;
                 }
-                
-                const rebatePercent = flute === 'bc-flute' ? 0.05 : 0.10;
-                const rebate = totalPrice * rebatePercent;
-                
-                const pacdPercent = flute === 'bc-flute' ? 0.04 : 0.075;
-                const pacd = (totalPrice - rebate) * pacdPercent;
-                
-                // Calculate marking cost FIRST
-                let markingCost = 0;
-                if (quantity < 100) {
-                    const markingType = document.querySelector('input[name="marking"]:checked').value;
-                    
-                    if (markingType === 'print') {
-                        markingCost = 20.00; 
-                    } else if (markingType === 'label') {
-                        markingCost = quantity * 0.06;
-                    }
-                }
-
-                // THEN calculate supplier price
-                const supplierPrice = totalPrice - rebate - pacd + markingCost;
-
-                // Update labels
-                document.getElementById('rebateLabel').textContent = `Rebates for Matalan (${rebatePercent * 100}%):`;
-                document.getElementById('pacdLabel').textContent = `For PacD (${pacdPercent * 100}%):`;
-
-                // Update all price displays
-                document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
-                document.getElementById('rebate').textContent = '$' + rebate.toFixed(2);
-                document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
-                document.getElementById('supplierPrice').textContent = '$' + supplierPrice.toFixed(2);
-                
-                // Handle marking price display and update labels
-                let showMarkingRow = false;
-                if (quantity < 100) {
-                    const markingType = document.querySelector('input[name="marking"]:checked').value;
-                    const priceWithMarking = totalPrice + markingCost;
-                    document.getElementById('markingPrice').textContent = '$' + priceWithMarking.toFixed(2);
-                    
-                    if ((role === 'admin' || role === 'garment_supplier') && markingType !== 'none') {
-                        document.getElementById('markingPriceRow').style.display = 'flex';
-                        showMarkingRow = true;
-                    }
-                }
-
-                // Update Total Price label based on marking row visibility
-                if (showMarkingRow) {
-                    document.getElementById('totalPriceLabel').textContent = 'Total Price:';
-                } else {
-                    document.getElementById('totalPriceLabel').textContent = 'Total Price (LC Price):';
-                }
-
-                // Show/hide rows based on role
-                if (role === 'admin') {
-                    document.getElementById('unitPriceRow').style.display = 'flex';
-                    document.getElementById('totalPriceRow').style.display = 'flex';
-                    document.getElementById('rebateRow').style.display = 'flex';
-                    document.getElementById('pacdRow').style.display = 'flex';
-                    document.getElementById('supplierPriceRow').style.display = 'flex';
-                } else if (role === 'garment_supplier') {
-                    document.getElementById('totalPriceRow').style.display = 'flex'; 
-                } else if (role === 'packaging_supplier') {
-                    document.getElementById('supplierPriceRow').style.display = 'flex';
-                }
-
-                document.getElementById('results').children[2].style.display = 'flex';
-                document.getElementById('results').children[3].style.display = 'flex';
-                
             } else {
-                document.getElementById('customMessage').style.display = 'block';
-                document.getElementById('results').children[2].style.display = 'flex';
-                document.getElementById('results').children[3].style.display = 'flex';
+                // Custom cartons use C-flute pricing structure (both BC-flute and C-flute custom)
+                priceValue = 1.03; // C-flute price per m²
+                totalPrice = totalArea * priceValue;
+                
+                document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
+                document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'SQM Price:';
+                
+                // Custom cartons use C-flute rebate and PacD percentages
+                rebatePercent = 0.10;
+                pacdPercent = 0.075;
             }
+            
+            const rebate = totalPrice * rebatePercent;
+            const pacd = (totalPrice - rebate) * pacdPercent;
+            
+            // Calculate marking cost FIRST
+            let markingCost = 0;
+            if (quantity < 100) {
+                const markingType = document.querySelector('input[name="marking"]:checked').value;
+                
+                if (markingType === 'print') {
+                    markingCost = 20.00; 
+                } else if (markingType === 'label') {
+                    markingCost = quantity * 0.06;
+                }
+            }
+
+            // THEN calculate supplier price
+            const supplierPrice = totalPrice - rebate - pacd + markingCost;
+
+            // Update labels
+            document.getElementById('rebateLabel').textContent = `Rebates for Matalan (${rebatePercent * 100}%):`;
+            document.getElementById('pacdLabel').textContent = `For PacD (${pacdPercent * 100}%):`;
+
+            // Update all price displays
+            document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
+            document.getElementById('rebate').textContent = '$' + rebate.toFixed(2);
+            document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
+            document.getElementById('supplierPrice').textContent = '$' + supplierPrice.toFixed(2);
+            
+            // Handle marking price display and update labels
+            let showMarkingRow = false;
+            if (quantity < 100) {
+                const markingType = document.querySelector('input[name="marking"]:checked').value;
+                const priceWithMarking = totalPrice + markingCost;
+                document.getElementById('markingPrice').textContent = '$' + priceWithMarking.toFixed(2);
+                
+                if ((role === 'admin' || role === 'garment_supplier') && markingType !== 'none') {
+                    document.getElementById('markingPriceRow').style.display = 'flex';
+                    showMarkingRow = true;
+                }
+            }
+
+            // Update Total Price label based on marking row visibility
+            if (showMarkingRow) {
+                document.getElementById('totalPriceLabel').textContent = 'Total Price:';
+            } else {
+                document.getElementById('totalPriceLabel').textContent = 'Total Price (LC Price):';
+            }
+
+            // Show/hide rows based on role
+            if (role === 'admin') {
+                document.getElementById('unitPriceRow').style.display = 'flex';
+                document.getElementById('totalPriceRow').style.display = 'flex';
+                document.getElementById('rebateRow').style.display = 'flex';
+                document.getElementById('pacdRow').style.display = 'flex';
+                document.getElementById('supplierPriceRow').style.display = 'flex';
+            } else if (role === 'garment_supplier') {
+                document.getElementById('totalPriceRow').style.display = 'flex'; 
+            } else if (role === 'packaging_supplier') {
+                document.getElementById('supplierPriceRow').style.display = 'flex';
+            }
+
+            document.getElementById('results').children[2].style.display = 'flex';
+            document.getElementById('results').children[3].style.display = 'flex';
             
             const showSheetDimensions = role === 'admin';
             document.getElementById('sheetLengthRow').style.display = showSheetDimensions ? 'flex' : 'none';
