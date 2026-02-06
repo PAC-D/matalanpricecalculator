@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200">
     <title>PDF Export - Matalan</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +16,8 @@
             display: flex;
             justify-content: center;
             font-family: 'Inter', sans-serif;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
 
         #page {
@@ -317,7 +319,7 @@
 
             // Create an offscreen container to isolate from page CSS/zoom
             const container = document.createElement('div');
-            container.style.position = 'fixed';
+            container.style.position = 'absolute';
             container.style.top = '0';
             container.style.left = '0';
             container.style.width = '210mm';       // Enforce exact A4 width
@@ -415,13 +417,9 @@
             // Row 1: Supplier
             supplierHtml += `
                 <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem;">
-                    <div style="flex: 3;">
+                    <div style="flex: 1;">
                         <div class="label">Supplier Name</div>
                         <div class="value" style="white-space: normal; word-wrap: break-word;">${data.supplier.supplierName || '-'}</div>
-                    </div>
-                    <div style="flex: 1;">
-                        <div class="label">Supplier Code</div>
-                        <div class="value">${data.supplier.supplierCode || '-'}</div>
                     </div>
                 </div>
             `;
@@ -429,13 +427,9 @@
             // Row 2: Factory
             supplierHtml += `
                 <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem;">
-                    <div style="flex: 3;">
+                    <div style="flex: 1;">
                         <div class="label">Factory Name</div>
                         <div class="value" style="white-space: normal; word-wrap: break-word;">${data.supplier.factoryName || '-'}</div>
-                    </div>
-                    <div style="flex: 1;">
-                        <div class="label">Factory Code</div>
-                        <div class="value">${data.supplier.factoryCode || '-'}</div>
                     </div>
                 </div>
             `;

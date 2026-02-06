@@ -1,6 +1,23 @@
 # Version History
 
-## v2.0 - Professional Standard & Export Features (Current)
+## v2.1 - Enhanced Specification Logic & Refinements (Current)
+**Release Date:** February 07, 2026
+
+### 🚀 Logic & Feature Updates
+- **Renamed Condition**: Changed "BH UH" to **"BS UH"** (Box Single - Up & Hanging).
+- **Expanded Pack & Path Codes**: All 4 codes (1, 2, 3, 4) are now available for both **BS** and **B** types.
+- **Dynamic Flute Validation**: Implemented strict flute type availability based on Pack Type & Code:
+  - **BS + Code 1/2** → Only **BC Flute** allowed.
+  - **B + Code 1/2** → Only **C Flute** allowed.
+- **Specification Details**: Updated "Flute Type" to show quality specs: **C-Flute (C40ECT)** and **BC-Flute (BC40ECT)**.
+
+### 🛠️ UI & PDF Improvements
+- **Simplified Input**: Removed unnecessary **Supplier Code** and **Factory Code** fields.
+- **Mobile PDF Optimization**: Fixed PDF generation issues on mobile devices (viewport scaling & text size inflation).
+
+---
+
+## v2.0 - Professional Standard & Export Features
 **Release Date:** February 06, 2026
 
 ### 🚀 Major New Features

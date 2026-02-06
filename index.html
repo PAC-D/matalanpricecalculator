@@ -495,27 +495,15 @@
                 <label class="section-label">Supplier & Factory Information</label>
 
                 <!-- Supplier Row -->
-                <div class="input-grid" style="grid-template-columns: 3fr 1fr; margin-bottom: 1rem;">
-                    <div class="form-group floating-group">
-                        <input type="text" id="supplierName" placeholder=" ">
-                        <label for="supplierName">Supplier Name</label>
-                    </div>
-                    <div class="form-group floating-group">
-                        <input type="text" id="supplierCode" placeholder=" ">
-                        <label for="supplierCode">Supplier Code</label>
-                    </div>
+                <div class="form-group floating-group" style="margin-bottom: 1rem;">
+                    <input type="text" id="supplierName" placeholder=" ">
+                    <label for="supplierName">Supplier Name</label>
                 </div>
 
                 <!-- Factory Row -->
-                <div class="input-grid" style="grid-template-columns: 3fr 1fr;">
-                    <div class="form-group floating-group">
-                        <input type="text" id="factoryName" placeholder=" ">
-                        <label for="factoryName">Factory Name</label>
-                    </div>
-                    <div class="form-group floating-group">
-                        <input type="text" id="factoryCode" placeholder=" ">
-                        <label for="factoryCode">Factory Code</label>
-                    </div>
+                <div class="form-group floating-group">
+                    <input type="text" id="factoryName" placeholder=" ">
+                    <label for="factoryName">Factory Name</label>
                 </div>
 
                 <!-- Packaging Supplier -->
@@ -543,23 +531,23 @@
                             <option value="">Select Pack Type</option>
                             <option value="BS">BS (Box Single - Single)</option>
                             <option value="B">B (Ratio)</option>
-                            <option value="BHUH">BH UH</option>
+                            <option value="BSUH">BS UH (Box Single - Up & Hanging)</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="select-label">Pack & Path Code</label>
-                        <select id="packPathCode" class="custom-select" disabled>
+                        <select id="packPathCode" class="custom-select" onchange="updateFluteAvailability()" disabled>
                             <option value="">Select Code</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="select-label">Flute Type</label>
+                    <label class="select-label">Flute Type (Quality)</label>
                     <select id="flute" class="custom-select" onchange="updateCartonStyle()" disabled>
                         <option value="">Select Flute Type</option>
-                        <option value="c-flute">C-Flute</option>
-                        <option value="bc-flute">BC-Flute</option>
+                        <option value="c-flute">C-Flute (C40ECT)</option>
+                        <option value="bc-flute">BC-Flute (BC40ECT)</option>
                     </select>
                 </div>
 
@@ -776,39 +764,70 @@
             flute.disabled = true;
 
             if (packType === 'BS') {
-                // BS (Single) -> 1, 2 | BC-Flute
+                // BS (Single) -> 1, 2, 3, 4
                 packPath.add(new Option('1', '1'));
                 packPath.add(new Option('2', '2'));
-                packPath.disabled = false;
-
-                flute.value = 'bc-flute';
-                updateCartonStyle();
-            } else if (packType === 'B') {
-                // B (Ratio) -> 1, 2 | C-Flute
-                packPath.add(new Option('1', '1'));
-                packPath.add(new Option('2', '2'));
-                packPath.disabled = false;
-
-                flute.value = 'c-flute';
-                updateCartonStyle();
-            } else if (packType === 'BHUH') {
-                // BH UH -> 3, 4 | C-Flute for Area Calc | Custom Style default
                 packPath.add(new Option('3', '3'));
                 packPath.add(new Option('4', '4'));
                 packPath.disabled = false;
 
-                // Set defaults for simple area calc
-                flute.value = 'c-flute';
-                updateCartonStyle();
-                // Force custom style for dimensions input
-                document.getElementById('cartonStyle').value = 'custom';
-                updateCartonSelection(); // This handles setting selection to 'custom' and enabling dims
+                updateFluteAvailability();
+            } else if (packType === 'B') {
+                // B (Ratio) -> 1, 2, 3, 4
+                packPath.add(new Option('1', '1'));
+                packPath.add(new Option('2', '2'));
+                packPath.add(new Option('3', '3'));
+                packPath.add(new Option('4', '4'));
+                packPath.disabled = false;
+
+                updateFluteAvailability();
+            } else if (packType === 'BSUH') {
+                // BS UH -> 3, 4
+                packPath.add(new Option('3', '3'));
+                packPath.add(new Option('4', '4'));
+                packPath.disabled = false;
+
+                updateFluteAvailability();
+
+                // Force custom style for dimensions input if needed, or leave open
+                // User said "all 3 can have all flute type", so we allow flute selection first.
             } else {
                 // Reset
                 flute.value = '';
-                flute.disabled = false;
+                flute.disabled = true;
                 updateCartonStyle();
             }
+        }
+
+        function updateFluteAvailability() {
+            const packType = document.getElementById('packType').value;
+            const packPath = document.getElementById('packPathCode').value;
+            const fluteSelect = document.getElementById('flute');
+
+            // Enable flute select by default
+            fluteSelect.disabled = false;
+
+            // Get options
+            const optC = fluteSelect.querySelector('option[value="c-flute"]');
+            const optBC = fluteSelect.querySelector('option[value="bc-flute"]');
+
+            // Reset options availability
+            optC.disabled = false;
+            optBC.disabled = false;
+
+            // Constraint: BS + Code 1 or 2 -> Only BC Flute
+            if (packType === 'BS' && (packPath === '1' || packPath === '2')) {
+                optC.disabled = true;
+                if (fluteSelect.value === 'c-flute') fluteSelect.value = '';
+            }
+            // Constraint: B (Ratio) + Code 1 or 2 -> Only C Flute
+            else if (packType === 'B' && (packPath === '1' || packPath === '2')) {
+                optBC.disabled = true;
+                if (fluteSelect.value === 'bc-flute') fluteSelect.value = '';
+            }
+
+            // Trigger style update to ensure consistency
+            updateCartonStyle();
         }
 
         function updateCartonStyle() {
@@ -965,9 +984,9 @@
             });
             document.getElementById('customMessage').style.display = 'none';
 
-            // Check BH UH HERE - After Dimensions/Area, Before Price
-            if (packType === 'BHUH') {
-                document.getElementById('customMessage').textContent = "Price will not be calculated for BH UH.";
+            // Check BS UH HERE - After Dimensions/Area, Before Price
+            if (packType === 'BSUH') {
+                document.getElementById('customMessage').textContent = "Price will not be calculated for BS UH.";
                 document.getElementById('customMessage').style.display = 'block';
                 document.getElementById('results').classList.add('show');
                 return; // Stop before price calculations
@@ -1115,11 +1134,10 @@
 
             // Gather Supplier Information
             const supplierName = document.getElementById('supplierName').value;
-            const supplierCode = document.getElementById('supplierCode').value;
             const factoryName = document.getElementById('factoryName').value;
-            const factoryCode = document.getElementById('factoryCode').value;
             const packagingSupplierSelect = document.getElementById('packagingSupplier');
-            const packagingSupplier = packagingSupplierSelect.options[packagingSupplierSelect.selectedIndex] ? packagingSupplierSelect.options[packagingSupplierSelect.selectedIndex].text : '';
+            // Only get text if a valid value is selected
+            const packagingSupplier = packagingSupplierSelect.value ? packagingSupplierSelect.options[packagingSupplierSelect.selectedIndex].text : '';
 
 
             // Marking Logic
@@ -1187,9 +1205,7 @@
                 supplier: {
                     origin: "Bangladesh",
                     supplierName: supplierName,
-                    supplierCode: supplierCode,
                     factoryName: factoryName,
-                    factoryCode: factoryCode,
                     packagingSupplier: packagingSupplier
                 },
                 specs: {
