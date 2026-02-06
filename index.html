@@ -439,6 +439,32 @@
                 grid-column: span 1;
             }
         }
+
+        .app-footer {
+            text-align: right;
+            padding: 1rem 2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-family: inherit;
+            /* Inherits your font (e.g., 'Outfit' or 'Inter') */
+        }
+
+        .app-footer .divider {
+            opacity: 0.5;
+            margin: 0 0.5rem;
+        }
+
+        .app-footer .developer-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .app-footer .developer-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -676,6 +702,11 @@
             </div>
         </div>
     </div>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 PACD. All rights reserved. <span class="divider">|</span> Developed by <a
+                href="https://ev1shoaib.netlify.app" target="_blank" class="developer-link">EV1</a></p>
+    </footer>
 
     <script>
         lucide.createIcons();

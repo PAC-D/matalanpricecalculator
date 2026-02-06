@@ -19,10 +19,10 @@
         }
 
         #page {
-            width: 210mm;
-            min-height: 297mm;
+            width: 200mm;
+            min-height: 280mm;
             background: white;
-            padding: 10mm;
+            padding: 5mm;
             box-sizing: border-box;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             margin: 20px;
@@ -153,7 +153,7 @@
                 width: 100%;
                 min-height: auto;
                 margin: 0;
-                padding: 10mm;
+                padding: 5mm;
                 box-shadow: none;
                 border: none;
             }
@@ -240,19 +240,19 @@
             const clone = element.cloneNode(true);
             clone.style.transform = 'none';
             clone.style.margin = '0';
-            clone.style.padding = '10mm';
+            clone.style.padding = '5mm';
             clone.style.boxShadow = 'none';
             clone.style.border = 'none';
-            clone.style.width = '210mm';
-            clone.style.minHeight = '297mm';
+            clone.style.width = '200mm';
+            clone.style.minHeight = '280mm';
             clone.style.background = '#ffffff';
 
             const container = document.createElement('div');
             container.style.position = 'fixed';
             container.style.top = '0';
             container.style.left = '0';
-            container.style.width = '210mm';
-            container.style.height = '297mm';
+            container.style.width = '200mm';
+            container.style.height = '280mm';
             container.style.overflow = 'hidden';
             container.style.zIndex = '-9999';
             container.style.background = '#ffffff';
