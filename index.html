@@ -1,431 +1,688 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carton Price Calculator</title>
+    <title>Matalan Price Calculator</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/favon.png">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
+        /* --- THEME FROM PRIMARK CALCULATOR --- */
+        :root {
+            /* Using Primark Navy/Red theme as requested for consistency */
+            --primary: #00205b;
+            --primary-hover: #001540;
+            --secondary: #e31837;
+
+            --bg-dark: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --border: #e2e8f0;
+
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+            --shadow-glow: 0 4px 20px rgba(0, 32, 91, 0.15);
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             min-height: 100vh;
-            padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
             position: relative;
         }
-        
-        .calculator-container {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
-            padding: 50px;
-            max-width: 700px;
+
+        /* Background Decoration */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            margin-top: 40px;
-            margin-bottom: 120px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        h1 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-            text-align: center;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            height: 100%;
+            background: radial-gradient(circle at 10% 10%, rgba(227, 24, 55, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(0, 32, 91, 0.03) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
         }
 
-        h3 {
-            text-align: center;
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 35px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .form-group {
-            margin-bottom: 28px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 10px;
-            color: #334155;
-            font-weight: 600;
-            font-size: 14px;
-            letter-spacing: 0.3px;
-        }
-        
-        select, input[type="number"] {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #f8fafc;
-            color: #1e293b;
-            font-family: inherit;
-        }
-        
-        select:disabled, input[type="number"]:disabled {
-            background: #f1f5f9;
-            cursor: not-allowed;
-            color: #94a3b8;
-            border-color: #e2e8f0;
-        }
-        
-        select:focus, input[type="number"]:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08);
-        }
-        
-        .dimension-group {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .dimension-group > div label {
-            font-size: 12px;
-            margin-bottom: 6px;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .marking-options {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            padding: 20px;
-            border-radius: 14px;
-            border: 2px solid #fbbf24;
-        }
-
-        .marking-label {
+        /* Navbar */
+        .navbar {
+            height: 70px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: background 0.2s;
-            color: #78350f;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
         }
 
-        .marking-label:hover {
-            background: rgba(255,255,255,0.4);
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .marking-label:last-child {
-            margin-bottom: 0;
+        .logo-img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
         }
 
-        .marking-label input {
-            margin-right: 12px;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
-        .calculate-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
+        .navbar h1 {
+            font-size: 1.25rem;
             font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            letter-spacing: -0.01em;
+            color: var(--primary);
         }
-        
-        .calculate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-y: auto;
         }
-        
-        .calculate-btn:active {
-            transform: translateY(-1px);
+
+        .calculator-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        .results {
-            margin-top: 35px;
-            padding: 30px;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-radius: 16px;
-            display: none;
-            border: 2px solid #bae6fd;
-        }
-        
-        .results.show {
-            display: block;
-            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes slideIn {
+
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(14, 165, 233, 0.15);
-        }
-        
-        .result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .result-label {
-            color: #0c4a6e;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .result-value {
-            color: #0369a1;
-            font-weight: 700;
-            font-size: 15px;
-        }
-        
-        .custom-message {
-            color: #b91c1c;
-            font-weight: 700;
+
+        .card-header {
             text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Form Elements */
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        /* Floating Label Logic */
+        .floating-group {
+            position: relative;
+        }
+
+        .floating-group input,
+        .floating-group textarea {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            border-radius: 12px;
-            margin-top: 15px;
-            border: 2px solid #f87171;
-            font-size: 14px;
-            letter-spacing: 0.3px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 0.75rem 0.5rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
-        #markingPriceRow {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            padding: 14px 18px;
-            border-radius: 10px;
-            border: 2px solid #fbbf24;
-            margin: 8px 0;
-        }
-
-        #markingPriceRow .result-label {
-            color: #78350f;
-        }
-
-        #markingPriceRow .result-value {
-            color: #92400e;
-        }
-
-        /* Logo Footer */
-        .logo-footer {
-            position: fixed;
-            bottom: 30px;
-            left: 0;
-            width: 100%;
-            padding: 0 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+        .floating-group label {
+            position: absolute;
+            top: 50%;
+            left: 0.75rem;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 400;
             pointer-events: none;
-            z-index: 10;
+            transition: all 0.2s ease;
         }
 
-        .logo-footer img {
-            height: 70px;
-            width: auto;
-            pointer-events: auto;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
-            transition: transform 0.3s ease;
+        .floating-group input:focus,
+        .floating-group input:not(:placeholder-shown),
+        .floating-group input:disabled {
+            border-color: var(--primary);
+            padding-top: 1.25rem;
+            padding-bottom: 0.25rem;
         }
 
-        .logo-footer img:hover {
-            transform: scale(1.05);
+        .floating-group input:focus {
+            box-shadow: 0 0 0 2px rgba(0, 32, 91, 0.1);
         }
 
-        /* Responsive */
+        .floating-group input:focus+label,
+        .floating-group input:not(:placeholder-shown)+label,
+        .floating-group input:disabled+label {
+            top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: 600;
+            transform: none;
+        }
+
+        .floating-group input:disabled {
+            background-color: #f8fafc;
+            border-color: var(--border);
+            color: #94a3b8;
+        }
+
+        /* Custom Selects */
+        .custom-select {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .custom-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 32, 91, 0.1);
+        }
+
+        .custom-select:disabled {
+            background-color: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Grid */
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        /* Buttons */
+        .primary-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            height: 50px;
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 32, 91, 0.2);
+            margin-top: 1rem;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 32, 91, 0.25);
+        }
+
+        /* Results Area */
+        .results {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        .results.show {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            border: 1px solid transparent;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .highlight-result {
+            background: linear-gradient(to right, #eff6ff, #dbeafe);
+            border-color: #bfdbfe;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .highlight-result .result-value {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        /* Marking Options (Matalan specific) */
+        .marking-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .marking-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #92400e;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .marking-label:hover {
+            background: #fff;
+        }
+
+        .marking-label input {
+            accent-color: #d97706;
+            margin-right: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .select-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Custom Messages */
+        .custom-message {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
         @media (max-width: 640px) {
-            .calculator-container {
-                padding: 30px 25px;
+            .navbar {
+                padding: 0 1rem;
             }
 
-            h1 {
-                font-size: 26px;
+            .main-container {
+                padding: 20px 1rem;
             }
 
-            .dimension-group {
+            .input-grid {
                 grid-template-columns: 1fr;
-                gap: 12px;
             }
 
-            .logo-footer {
-                padding: 0 25px;
-                bottom: 20px;
+            .results.show {
+                grid-template-columns: 1fr;
             }
 
-            .logo-footer img {
-                height: 50px;
+            .full-width {
+                grid-column: span 1;
             }
         }
     </style>
 </head>
+
 <body>
-    <div class="calculator-container">
-        <h1>Carton Price Calculator</h1>
-        <h3>Only for Bangladesh (Packaging Supplier Management)</h3>
-        
-        <div class="form-group">
-            <label for="flute">Flute Type</label>
-            <select id="flute" onchange="updateCartonStyle()">
-                <option value="">Select Flute Type</option>
-                <option value="c-flute">C-Flute</option>
-                <option value="bc-flute">BC-Flute</option>
-            </select>
+    <!-- Background Gradient -->
+    <div class="bg-decoration"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo-section">
+            <img src="pacd.png" alt="PACD Logo" class="logo-img">
         </div>
-        
-        <div class="form-group">
-            <label for="cartonStyle">Carton Style</label>
-            <select id="cartonStyle" onchange="updateCartonSelection()" disabled>
-                <option value="">Select Carton Style</option>
-            </select>
+        <div class="logo-section">
+            <img src="matalan.png" alt="Matalan Logo" class="logo-img" style="height: 35px;">
         </div>
-        
-        <div class="form-group">
-            <label for="cartonSelection">Carton Selection</label>
-            <select id="cartonSelection" onchange="updateDimensions()" disabled>
-                <option value="">Select Carton</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label>Dimensions (mm)</label>
-            <div class="dimension-group">
-                <div>
-                    <label for="length">Length (L)</label>
-                    <input type="number" id="length" placeholder="L" min="0" disabled>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="calculator-card">
+            <div class="card-header">
+                <h2>Carton Price Calculator</h2>
+                <p>Only for Bangladesh (Packaging Supplier Management)</p>
+            </div>
+
+            <!-- Supplier & Factory Information -->
+            <div class="form-section">
+                <label class="section-label">Supplier & Factory Information</label>
+
+                <!-- Supplier Row -->
+                <div class="input-grid" style="grid-template-columns: 3fr 1fr; margin-bottom: 1rem;">
+                    <div class="form-group floating-group">
+                        <input type="text" id="supplierName" placeholder=" ">
+                        <label for="supplierName">Supplier Name</label>
+                    </div>
+                    <div class="form-group floating-group">
+                        <input type="text" id="supplierCode" placeholder=" ">
+                        <label for="supplierCode">Supplier Code</label>
+                    </div>
                 </div>
-                <div>
-                    <label for="width">Width (W)</label>
-                    <input type="number" id="width" placeholder="W" min="0" disabled>
+
+                <!-- Factory Row -->
+                <div class="input-grid" style="grid-template-columns: 3fr 1fr;">
+                    <div class="form-group floating-group">
+                        <input type="text" id="factoryName" placeholder=" ">
+                        <label for="factoryName">Factory Name</label>
+                    </div>
+                    <div class="form-group floating-group">
+                        <input type="text" id="factoryCode" placeholder=" ">
+                        <label for="factoryCode">Factory Code</label>
+                    </div>
                 </div>
-                <div>
-                    <label for="height">Height (H)</label>
-                    <input type="number" id="height" placeholder="H" min="0" disabled>
+
+                <!-- Packaging Supplier -->
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label class="select-label">Packaging Supplier Name</label>
+                    <select id="packagingSupplier" class="custom-select">
+                        <option value="">Select Supplier</option>
+                        <option value="Uniglory Packaging Industries Ltd.">Uniglory Packaging Industries Ltd.</option>
+                        <option value="Reflex Packaging Ltd.">Reflex Packaging Ltd.</option>
+                        <option value="Transworld Packaging Ltd.">Transworld Packaging Ltd.</option>
+                        <option value="M&U Packaging Ltd.">M&U Packaging Ltd.</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="form-section">
+                <label class="section-label">Configuration</label>
+
+                <div class="input-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label class="select-label">Pack Type</label>
+                        <select id="packType" class="custom-select" onchange="updatePackType()">
+                            <option value="">Select Pack Type</option>
+                            <option value="BS">BS (Box Single - Single)</option>
+                            <option value="B">B (Ratio)</option>
+                            <option value="BHUH">BH UH</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="select-label">Pack & Path Code</label>
+                        <select id="packPathCode" class="custom-select" disabled>
+                            <option value="">Select Code</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="select-label">Flute Type</label>
+                    <select id="flute" class="custom-select" onchange="updateCartonStyle()" disabled>
+                        <option value="">Select Flute Type</option>
+                        <option value="c-flute">C-Flute</option>
+                        <option value="bc-flute">BC-Flute</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="select-label">Carton Type</label>
+                    <select id="cartonStyle" class="custom-select" onchange="updateCartonSelection()" disabled>
+                        <option value="">Select Carton Type</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="select-label">Carton Selection</label>
+                    <select id="cartonSelection" class="custom-select" onchange="updateDimensions()" disabled>
+                        <option value="">Select Carton</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dimensions -->
+            <div class="form-section">
+                <label class="section-label">Dimensions (mm)</label>
+                <div class="input-grid">
+                    <div class="form-group floating-group">
+                        <input type="number" id="length" placeholder=" " min="0" disabled>
+                        <label for="length">Length</label>
+                    </div>
+                    <div class="form-group floating-group">
+                        <input type="number" id="width" placeholder=" " min="0" disabled>
+                        <label for="width">Width</label>
+                    </div>
+                    <div class="form-group floating-group">
+                        <input type="number" id="height" placeholder=" " min="0" disabled>
+                        <label for="height">Height</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Handover / Quantity -->
+            <div class="form-section">
+                <label class="section-label">Order Details</label>
+                <div class="form-group floating-group">
+                    <input type="number" id="quantity" placeholder=" " min="1" oninput="checkQuantity()">
+                    <label for="quantity">Carton Quantity</label>
+                </div>
+            </div>
+
+            <!-- Marking (Matalan Specific) -->
+            <div class="form-group" id="markingSection" style="display: none;">
+                <label class="section-label" style="color: #b91c1c;">Carton Marking (Qty < 100)</label>
+                        <div class="marking-options">
+                            <label class="marking-label">
+                                <input type="radio" name="marking" value="print" checked>
+                                Carton Print (+ $20.00 Set-up Fee)
+                            </label>
+                            <label class="marking-label">
+                                <input type="radio" name="marking" value="label">
+                                Label Print (+ $0.06 per label)
+                            </label>
+                            <label class="marking-label">
+                                <input type="radio" name="marking" value="none">
+                                None (Print at own factory)
+                            </label>
+                        </div>
+            </div>
+
+            <button class="primary-btn" onclick="calculate()">
+                <i data-lucide="calculator"></i> Calculate Price
+            </button>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <!-- Dimensions -->
+                <div class="result-item" id="sheetLengthRow">
+                    <span class="result-label">Blank Sheet Length</span>
+                    <span class="result-value" id="sheetLength">-</span>
+                </div>
+                <div class="result-item" id="sheetWidthRow">
+                    <span class="result-label">Blank Sheet Width</span>
+                    <span class="result-value" id="sheetWidth">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Area per Carton</span>
+                    <span class="result-value" id="areaPerCarton">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Area</span>
+                    <span class="result-value" id="totalArea">-</span>
+                </div>
+
+                <!-- Prices -->
+
+
+                <div class="result-item full-width" id="cartonUnitPriceRow" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span class="result-label">Carton Unit Price</span>
+                        <span class="result-value" id="cartonUnitPrice">-</span>
+                    </div>
+                </div>
+
+                <div class="result-item highlight-result full-width" id="totalPriceRow" style="display: none;">
+                    <span class="result-label" id="totalPriceLabel">Total Price (LC Price)</span>
+                    <span class="result-value" id="totalPrice">-</span>
+                </div>
+
+                <div class="result-item highlight-result full-width" id="markingPriceRow" style="display: none;">
+                    <span class="result-label">Price with Carton Marking</span>
+                    <span class="result-value" id="markingPrice">-</span>
+                </div>
+
+                <div class="result-item full-width" id="rebateRow" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span class="result-label" id="rebateLabel">Rebates for Matalan</span>
+                        <span class="result-value" id="rebate">-</span>
+                    </div>
+                </div>
+
+                <div class="result-item full-width" id="pacdRow" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span class="result-label" id="pacdLabel">For PacD</span>
+                        <span class="result-value" id="pacd">-</span>
+                    </div>
+                </div>
+
+                <div class="result-item highlight-result full-width" id="supplierPriceRow"
+                    style="display: none; background: #f8fafc; border: 1px solid var(--primary);">
+                    <span class="result-label" style="color: var(--primary);">Packaging Supplier Net Revenue</span>
+                    <span class="result-value" id="supplierPrice" style="color: var(--primary);">-</span>
+                </div>
+
+                <div id="customMessage" class="custom-message full-width" style="display: none;">
+                    Please contact packaging supplier for pricing
+                </div>
+
+                <div class="full-width" style="margin-top: 1rem;">
+                    <button class="primary-btn" onclick="exportPDFNew()"
+                        style="background: #fff; color: var(--primary); border: 1px solid var(--border); width: 100%;">
+                        <i data-lucide="download"></i> Export PDF
+                    </button>
                 </div>
             </div>
         </div>
-        
-        <div class="form-group">
-            <label for="quantity">Carton Quantity</label>
-            <input type="number" id="quantity" placeholder="Enter quantity" min="1" oninput="checkQuantity()">
-        </div>
-
-        <div class="form-group" id="markingSection" style="display: none;">
-            <label style="color: #b91c1c; font-weight: 700;">Carton Marking (Qty < 100)</label>
-            <div class="marking-options">
-                <label class="marking-label">
-                    <input type="radio" name="marking" value="print" checked> 
-                    Carton Print (+ $20.00 Set-up Fee)
-                </label>
-                <label class="marking-label">
-                    <input type="radio" name="marking" value="label"> 
-                    Label Print (+ $0.06 per label)
-                </label>
-                <label class="marking-label">
-                    <input type="radio" name="marking" value="none"> 
-                    None (Print at own factory)
-                </label>
-            </div>
-        </div>
-        
-        <button class="calculate-btn" onclick="calculate()">Calculate Price</button>
-        
-        <div class="results" id="results">
-            <div class="result-item" id="sheetLengthRow">
-                <span class="result-label">Blank Sheet Length (L):</span>
-                <span class="result-value" id="sheetLength">-</span>
-            </div>
-            <div class="result-item" id="sheetWidthRow">
-                <span class="result-label">Blank Sheet Width (W):</span>
-                <span class="result-value" id="sheetWidth">-</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Area per Carton:</span>
-                <span class="result-value" id="areaPerCarton">-</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Total Area:</span>
-                <span class="result-value" id="totalArea">-</span>
-            </div>
-            <div class="result-item" id="unitPriceRow" style="display: none;">
-                <span class="result-label">Unit Price per Carton:</span>
-                <span class="result-value" id="unitPrice">-</span>
-            </div>
-            <div class="result-item" id="totalPriceRow" style="display: none;">
-                <span class="result-label" id="totalPriceLabel">Total Price (LC Price):</span>
-                <span class="result-value" id="totalPrice">-</span>
-            </div>
-
-            <div class="result-item" id="markingPriceRow" style="display: none;">
-                <span class="result-label">Price with Carton Marking (LC Price):</span>
-                <span class="result-value" id="markingPrice">-</span>
-            </div>
-
-            <div class="result-item" id="rebateRow" style="display: none;">
-                <span class="result-label" id="rebateLabel">Rebates for Matalan:</span>
-                <span class="result-value" id="rebate">-</span>
-            </div>
-            <div class="result-item" id="pacdRow" style="display: none;">
-                <span class="result-label" id="pacdLabel">For PacD:</span>
-                <span class="result-value" id="pacd">-</span>
-            </div>
-            <div class="result-item" id="supplierPriceRow" style="display: none;">
-                <span class="result-label">Packaging Supplier Price:</span>
-                <span class="result-value" id="supplierPrice">-</span>
-            </div>
-            
-            <div id="customMessage" class="custom-message" style="display: none;">
-                Please contact packaging supplier for pricing
-            </div>
-        </div>
-    </div>
-
-    <div class="logo-footer">
-        <img src="image_a18ea1.png" alt="Matalan Logo">
-        <img src="image_a18ebf.png" alt="PacD Logo">
     </div>
 
     <script>
-        const role = 'admin'; 
+        lucide.createIcons();
+
+        /* --- Matalan Logic Preserved --- */
+
+        const role = 'admin';
 
         const cartonData = {
             'A1': { L: 495, W: 285, H: 375, unitPrice: 0.97 },
@@ -447,7 +704,7 @@
         };
 
         const allResultRows = [
-            'sheetLengthRow', 'sheetWidthRow', 'unitPriceRow', 'totalPriceRow',
+            'sheetLengthRow', 'sheetWidthRow', 'cartonUnitPriceRow', 'totalPriceRow',
             'markingPriceRow', 'rebateRow', 'pacdRow', 'supplierPriceRow'
         ];
 
@@ -463,7 +720,7 @@
         function checkQuantity() {
             const qty = parseFloat(document.getElementById('quantity').value);
             const markingSection = document.getElementById('markingSection');
-            
+
             if (qty && qty < 100) {
                 markingSection.style.display = 'block';
             } else {
@@ -471,18 +728,66 @@
             }
         }
 
+        function updatePackType() {
+            const packType = document.getElementById('packType').value;
+            const packPath = document.getElementById('packPathCode');
+            const flute = document.getElementById('flute');
+
+            // Reset Pack Path
+            packPath.innerHTML = '<option value="">Select Code</option>';
+            packPath.disabled = true;
+
+            // Reset/Disable Flute
+            flute.disabled = true;
+
+            if (packType === 'BS') {
+                // BS (Single) -> 1, 2 | BC-Flute
+                packPath.add(new Option('1', '1'));
+                packPath.add(new Option('2', '2'));
+                packPath.disabled = false;
+
+                flute.value = 'bc-flute';
+                updateCartonStyle();
+            } else if (packType === 'B') {
+                // B (Ratio) -> 1, 2 | C-Flute
+                packPath.add(new Option('1', '1'));
+                packPath.add(new Option('2', '2'));
+                packPath.disabled = false;
+
+                flute.value = 'c-flute';
+                updateCartonStyle();
+            } else if (packType === 'BHUH') {
+                // BH UH -> 3, 4 | C-Flute for Area Calc | Custom Style default
+                packPath.add(new Option('3', '3'));
+                packPath.add(new Option('4', '4'));
+                packPath.disabled = false;
+
+                // Set defaults for simple area calc
+                flute.value = 'c-flute';
+                updateCartonStyle();
+                // Force custom style for dimensions input
+                document.getElementById('cartonStyle').value = 'custom';
+                updateCartonSelection(); // This handles setting selection to 'custom' and enabling dims
+            } else {
+                // Reset
+                flute.value = '';
+                flute.disabled = false;
+                updateCartonStyle();
+            }
+        }
+
         function updateCartonStyle() {
             const flute = document.getElementById('flute').value;
             const cartonStyleSelect = document.getElementById('cartonStyle');
             const cartonSelectionSelect = document.getElementById('cartonSelection');
-            
-            cartonStyleSelect.innerHTML = '<option value="">Select Carton Style</option>';
+
+            cartonStyleSelect.innerHTML = '<option value="">Select Carton Type</option>';
             cartonSelectionSelect.innerHTML = '<option value="">Select Carton</option>';
             cartonSelectionSelect.disabled = true;
-            
+
             clearDimensions();
             document.getElementById('results').classList.remove('show');
-            
+
             if (flute === 'bc-flute') {
                 cartonStyleSelect.innerHTML += '<option value="standard">Standard Carton - Singles</option>';
                 cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
@@ -499,13 +804,13 @@
         function updateCartonSelection() {
             const cartonStyle = document.getElementById('cartonStyle').value;
             const cartonSelectionSelect = document.getElementById('cartonSelection');
-            
+
             cartonSelectionSelect.innerHTML = '<option value="">Select Carton</option>';
             cartonSelectionSelect.disabled = true;
             clearDimensions();
 
             document.getElementById('results').classList.remove('show');
-            
+
             if (cartonStyle === 'standard') {
                 const options = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3', 'D1', 'D2', 'D3'];
                 options.forEach(opt => {
@@ -535,11 +840,11 @@
             const lengthInput = document.getElementById('length');
             const widthInput = document.getElementById('width');
             const heightInput = document.getElementById('height');
-            
+
             lengthInput.value = '';
             widthInput.value = '';
             heightInput.value = '';
-            
+
             if (selection === 'custom') {
                 lengthInput.disabled = false;
                 widthInput.disabled = false;
@@ -549,9 +854,9 @@
                 lengthInput.value = data.L || '';
                 widthInput.value = data.W || '';
                 heightInput.value = data.H || '';
-                
+
                 const isRatioCarton = selection.startsWith('R-');
-                
+
                 if (isRatioCarton) {
                     lengthInput.disabled = true;
                     widthInput.disabled = true;
@@ -566,11 +871,12 @@
                 widthInput.disabled = true;
                 heightInput.disabled = true;
             }
-            
+
             document.getElementById('results').classList.remove('show');
         }
 
         function calculate() {
+            const packType = document.getElementById('packType').value;
             const flute = document.getElementById('flute').value;
             const cartonStyle = document.getElementById('cartonStyle').value;
             const selection = document.getElementById('cartonSelection').value;
@@ -578,14 +884,16 @@
             const width = parseFloat(document.getElementById('width').value);
             const height = parseFloat(document.getElementById('height').value);
             const quantity = parseFloat(document.getElementById('quantity').value);
-            
+
+            // Removed Early BH UH Check to allow SQM Calc
+
             if (!flute || !selection || !length || !width || !height || !quantity || quantity <= 0) {
                 alert('Please fill in all dimensions, select flute/carton, and enter a valid quantity.');
                 return;
             }
 
             checkQuantity();
-            
+
             let L, W, areaPerCarton;
 
             if (flute === 'bc-flute') {
@@ -608,13 +916,13 @@
                 alert('Invalid Flute Type selected.');
                 return;
             }
-            
+
             const totalArea = areaPerCarton * quantity;
-            
+
             document.getElementById('sheetLength').textContent = L.toFixed(2) + ' mm';
             document.getElementById('sheetWidth').textContent = W.toFixed(2) + ' mm';
-            document.getElementById('areaPerCarton').textContent = areaPerCarton.toFixed(6) + ' m²';
-            document.getElementById('totalArea').textContent = totalArea.toFixed(6) + ' m²';
+            document.getElementById('areaPerCarton').textContent = areaPerCarton.toFixed(2) + ' m²';
+            document.getElementById('totalArea').textContent = totalArea.toFixed(2) + ' m²';
 
             allResultRows.forEach(id => {
                 const element = document.getElementById(id);
@@ -622,49 +930,70 @@
             });
             document.getElementById('customMessage').style.display = 'none';
 
+            // Check BH UH HERE - After Dimensions/Area, Before Price
+            if (packType === 'BHUH') {
+                document.getElementById('customMessage').textContent = "Price will not be calculated for BH UH.";
+                document.getElementById('customMessage').style.display = 'block';
+                document.getElementById('results').classList.add('show');
+                return; // Stop before price calculations
+            }
+
             const isCustom = selection === 'custom';
-            
+
             let priceValue, totalPrice, rebatePercent, pacdPercent;
-            
+            let cartonUnitCost;
+
             if (!isCustom) {
-                priceValue = cartonData[selection].unitPrice;
-                
+                // Fetch basic price from data
+                let rawPrice = cartonData[selection].unitPrice;
+                const selectedCartonStyle = document.getElementById('cartonStyle').value;
+
+                if (selectedCartonStyle === 'standard') {
+                    // Startdard Carton - Singles: Data is Unit Price per Carton
+                    cartonUnitCost = rawPrice;
+                    totalPrice = cartonUnitCost * quantity;
+                    // Derived SQM Price
+                    priceValue = (areaPerCarton > 0) ? (cartonUnitCost / areaPerCarton) : 0;
+                } else {
+                    // Ratio / Others: Data is SQM Price
+                    priceValue = rawPrice;
+                    totalPrice = totalArea * priceValue;
+                    cartonUnitCost = areaPerCarton * priceValue;
+                }
+
+                // SQM Display Update Removed
+                document.getElementById('cartonUnitPrice').textContent = '$' + cartonUnitCost.toFixed(2);
+
                 if (flute === 'bc-flute') {
-                    totalPrice = quantity * priceValue;
-                    document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
-                    document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'Unit Price:';
                     rebatePercent = 0.05;
                     pacdPercent = 0.04;
                 } else if (flute === 'c-flute') {
-                    totalPrice = totalArea * priceValue;
-                    document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
-                    document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'SQM Price:';
                     rebatePercent = 0.10;
                     pacdPercent = 0.075;
                 }
             } else {
-                // Custom cartons use C-flute pricing structure (both BC-flute and C-flute custom)
-                priceValue = 1.03; // C-flute price per m²
+                // Custom cartons
+                priceValue = 1.03; // Base SQM Price for custom
                 totalPrice = totalArea * priceValue;
-                
-                document.getElementById('unitPrice').textContent = '$' + priceValue.toFixed(2);
-                document.getElementById('unitPriceRow').querySelector('.result-label').textContent = 'SQM Price:';
-                
-                // Custom cartons use C-flute rebate and PacD percentages
+                cartonUnitCost = areaPerCarton * priceValue;
+
+                // SQM Display Update Removed
+                document.getElementById('cartonUnitPrice').textContent = '$' + cartonUnitCost.toFixed(2);
+
                 rebatePercent = 0.10;
                 pacdPercent = 0.075;
             }
-            
+
             const rebate = totalPrice * rebatePercent;
             const pacd = (totalPrice - rebate) * pacdPercent;
-            
+
             // Calculate marking cost FIRST
             let markingCost = 0;
             if (quantity < 100) {
                 const markingType = document.querySelector('input[name="marking"]:checked').value;
-                
+
                 if (markingType === 'print') {
-                    markingCost = 20.00; 
+                    markingCost = 20.00;
                 } else if (markingType === 'label') {
                     markingCost = quantity * 0.06;
                 }
@@ -682,49 +1011,163 @@
             document.getElementById('rebate').textContent = '$' + rebate.toFixed(2);
             document.getElementById('pacd').textContent = '$' + pacd.toFixed(2);
             document.getElementById('supplierPrice').textContent = '$' + supplierPrice.toFixed(2);
-            
+
             // Handle marking price display and update labels
             let showMarkingRow = false;
             if (quantity < 100) {
                 const markingType = document.querySelector('input[name="marking"]:checked').value;
                 const priceWithMarking = totalPrice + markingCost;
                 document.getElementById('markingPrice').textContent = '$' + priceWithMarking.toFixed(2);
-                
+
                 if ((role === 'admin' || role === 'garment_supplier') && markingType !== 'none') {
                     document.getElementById('markingPriceRow').style.display = 'flex';
                     showMarkingRow = true;
                 }
             }
 
-            // Update Total Price label based on marking row visibility
+            // Update Total Price label
             if (showMarkingRow) {
-                document.getElementById('totalPriceLabel').textContent = 'Total Price:';
+                document.getElementById('totalPriceLabel').textContent = 'Total Price';
             } else {
-                document.getElementById('totalPriceLabel').textContent = 'Total Price (LC Price):';
+                document.getElementById('totalPriceLabel').textContent = 'Total Price (LC Price)';
             }
 
             // Show/hide rows based on role
             if (role === 'admin') {
-                document.getElementById('unitPriceRow').style.display = 'flex';
+                // SQM Row Visibility Removed
+                document.getElementById('cartonUnitPriceRow').style.display = 'flex';
                 document.getElementById('totalPriceRow').style.display = 'flex';
                 document.getElementById('rebateRow').style.display = 'flex';
                 document.getElementById('pacdRow').style.display = 'flex';
                 document.getElementById('supplierPriceRow').style.display = 'flex';
             } else if (role === 'garment_supplier') {
-                document.getElementById('totalPriceRow').style.display = 'flex'; 
+                document.getElementById('totalPriceRow').style.display = 'flex';
             } else if (role === 'packaging_supplier') {
                 document.getElementById('supplierPriceRow').style.display = 'flex';
             }
 
-            document.getElementById('results').children[2].style.display = 'flex';
-            document.getElementById('results').children[3].style.display = 'flex';
-            
             const showSheetDimensions = role === 'admin';
             document.getElementById('sheetLengthRow').style.display = showSheetDimensions ? 'flex' : 'none';
             document.getElementById('sheetWidthRow').style.display = showSheetDimensions ? 'flex' : 'none';
-            
+
             document.getElementById('results').classList.add('show');
+        }
+
+        function exportPDFNew() {
+            // Gather Data
+            const packTypeSelect = document.getElementById('packType');
+            const packType = packTypeSelect.options[packTypeSelect.selectedIndex] ? packTypeSelect.options[packTypeSelect.selectedIndex].text : '';
+            const packPath = document.getElementById('packPathCode').value;
+
+            const fluteSelect = document.getElementById('flute');
+            const cartonStyleSelect = document.getElementById('cartonStyle');
+            const cartonSelectionSelect = document.getElementById('cartonSelection');
+
+            const flute = fluteSelect.options[fluteSelect.selectedIndex] ? fluteSelect.options[fluteSelect.selectedIndex].text : '';
+            const cartonStyle = cartonStyleSelect.options[cartonStyleSelect.selectedIndex] ? cartonStyleSelect.options[cartonStyleSelect.selectedIndex].text : '';
+            const selection = cartonSelectionSelect.value;
+            const selectionText = cartonSelectionSelect.options[cartonSelectionSelect.selectedIndex] ? cartonSelectionSelect.options[cartonSelectionSelect.selectedIndex].text : '';
+
+            const length = document.getElementById('length').value;
+            const width = document.getElementById('width').value;
+            const height = document.getElementById('height').value;
+            const quantity = document.getElementById('quantity').value;
+
+            const sheetLength = document.getElementById('sheetLength').textContent;
+            const sheetWidth = document.getElementById('sheetWidth').textContent;
+            const areaPerCarton = document.getElementById('areaPerCarton').textContent;
+            const totalArea = document.getElementById('totalArea').textContent;
+
+            // Gather Supplier Information
+            const supplierName = document.getElementById('supplierName').value;
+            const supplierCode = document.getElementById('supplierCode').value;
+            const factoryName = document.getElementById('factoryName').value;
+            const factoryCode = document.getElementById('factoryCode').value;
+            const packagingSupplierSelect = document.getElementById('packagingSupplier');
+            const packagingSupplier = packagingSupplierSelect.options[packagingSupplierSelect.selectedIndex] ? packagingSupplierSelect.options[packagingSupplierSelect.selectedIndex].text : '';
+
+
+            // Marking Logic
+            let markingText = "None";
+            if (parseFloat(quantity) < 100) {
+                const markingType = document.querySelector('input[name="marking"]:checked');
+                if (markingType) {
+                    if (markingType.value === 'print') markingText = "Carton Print ($20 Fee)";
+                    else if (markingType.value === 'label') markingText = "Label Print";
+                }
+            }
+
+            // Gather Costs
+            const costs = [];
+
+
+
+            // Carton Unit Price
+            if (document.getElementById('cartonUnitPriceRow').style.display !== 'none') {
+                costs.push({
+                    label: 'Carton Unit Price',
+                    value: document.getElementById('cartonUnitPrice').textContent
+                });
+            }
+
+            if (document.getElementById('totalPriceRow').style.display !== 'none') {
+                costs.push({
+                    label: document.getElementById('totalPriceLabel').textContent,
+                    value: document.getElementById('totalPrice').textContent,
+                    highlight: true
+                });
+            }
+
+            if (document.getElementById('rebateRow').style.display !== 'none') {
+                costs.push({
+                    label: document.getElementById('rebateLabel').textContent,
+                    value: document.getElementById('rebate').textContent
+                });
+            }
+
+            if (document.getElementById('pacdRow').style.display !== 'none') {
+                costs.push({
+                    label: document.getElementById('pacdLabel').textContent,
+                    value: document.getElementById('pacd').textContent
+                });
+            }
+
+            if (document.getElementById('supplierPriceRow').style.display !== 'none') {
+                costs.push({
+                    label: 'Packaging Supplier Net Revenue',
+                    value: document.getElementById('supplierPrice').textContent,
+                    highlight: true
+                });
+            }
+
+            const data = {
+                supplier: {
+                    origin: "Bangladesh",
+                    supplierName: supplierName,
+                    supplierCode: supplierCode,
+                    factoryName: factoryName,
+                    factoryCode: factoryCode,
+                    packagingSupplier: packagingSupplier
+                },
+                specs: {
+                    packType: packType,
+                    packPath: packPath,
+                    flute: flute,
+                    cartonStyle: cartonStyle,
+                    cartonSelection: selection === 'custom' ? 'Custom Dimensions' : selectionText,
+                    marking: markingText
+                },
+                dims: {
+                    length, width, height, quantity,
+                    sheetLength, sheetWidth, areaPerCarton, totalArea
+                },
+                costs: costs
+            };
+
+            window.localStorage.setItem('matalanPrintData', JSON.stringify(data));
+            window.open('pdf_export.html', '_blank');
         }
     </script>
 </body>
+
 </html>
