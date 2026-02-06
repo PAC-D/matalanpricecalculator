@@ -206,7 +206,7 @@
         </div>
 
         <h1 style="text-align: center; color: #00205b; font-size: 1.5rem; margin-top: -10px; margin-bottom: 5px;">Carton
-            Price Calculator</h1>
+            Price Calculator for Matalan</h1>
         <div style="text-align: right; margin-bottom: 20px; font-size: 0.85rem; color: #64748b;">
             Date: <span id="date-header"></span>
         </div>
@@ -271,13 +271,24 @@
             let filename = 'Matalan-Carton-Price.pdf';
             try {
                 const data = getExportData();
-                if (data && data.dims) {
-                    const isStandard = data.specs.cartonStyle && data.specs.cartonStyle.includes('Standard');
-                    const prefix = isStandard ? 'stn' : 'cus';
+                if (data && data.dims && data.specs) {
+                    let prefix = 'cus'; // Default
+                    const style = data.specs.cartonStyle || '';
+
+                    if (style.includes('Standard')) {
+                        prefix = 'stn';
+                    } else if (style.includes('Ratio')) {
+                        prefix = 'rto';
+                    } else if (style.includes('Custom')) {
+                        prefix = 'cus';
+                    }
+
                     const L = data.dims.length;
                     const W = data.dims.width;
                     const H = data.dims.height;
-                    filename = `Matalan_${prefix}${L}x${W}x${H}.pdf`;
+                    const Qty = data.dims.quantity;
+
+                    filename = `${prefix}_${L}${W}${H}_${Qty}.pdf`;
                 }
             } catch (e) {
                 console.error('Error generating filename', e);

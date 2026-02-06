@@ -487,7 +487,7 @@
         <div class="calculator-card">
             <div class="card-header">
                 <h2>Carton Price Calculator</h2>
-                <p>Only for Bangladesh (Packaging Supplier Management)</p>
+                <p id="pageSubtitle">Only for Bangladesh (Packaging Supplier Management)</p>
             </div>
 
             <!-- Supplier & Factory Information -->
@@ -665,7 +665,7 @@
                 </div>
 
                 <div class="result-item highlight-result full-width" id="markingPriceRow" style="display: none;">
-                    <span class="result-label">Price with Carton Marking</span>
+                    <span class="result-label">LC Price with Carton Marking</span>
                     <span class="result-value" id="markingPrice">-</span>
                 </div>
 
@@ -714,6 +714,10 @@
         /* --- Matalan Logic Preserved --- */
 
         const role = 'admin';
+
+        if (role !== 'admin') {
+            document.getElementById('pageSubtitle').textContent = "Only for Bangladesh";
+        }
 
         const cartonData = {
             'A1': { L: 495, W: 285, H: 375, unitPrice: 0.97 },
@@ -1145,6 +1149,14 @@
                 costs.push({
                     label: document.getElementById('totalPriceLabel').textContent,
                     value: document.getElementById('totalPrice').textContent,
+                    highlight: true
+                });
+            }
+
+            if (document.getElementById('markingPriceRow').style.display !== 'none') {
+                costs.push({
+                    label: 'LC Price with Carton Marking',
+                    value: document.getElementById('markingPrice').textContent,
                     highlight: true
                 });
             }
