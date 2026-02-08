@@ -418,6 +418,25 @@
             font-weight: 600;
         }
 
+        /* Warning Message */
+        .warning-message {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            padding: 0.875rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .warning-message i {
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
         @media (max-width: 640px) {
             .navbar {
                 padding: 0 1rem;
@@ -613,6 +632,13 @@
                         </div>
             </div>
 
+            <!-- Warning for Pack Path 3 or 4 -->
+            <div class="warning-message" id="pathWarning">
+                <i data-lucide="alert-triangle"></i>
+                <strong>Note:</strong> Pack & Path Codes 3 and 4 are not included in this pricing program. Price will
+                not be shown.
+            </div>
+
             <button class="primary-btn" onclick="calculate()">
                 <i data-lucide="calculator"></i> Calculate Price
             </button>
@@ -803,8 +829,25 @@
             const packType = document.getElementById('packType').value;
             const packPath = document.getElementById('packPathCode').value;
             const fluteSelect = document.getElementById('flute');
+            const pathWarning = document.getElementById('pathWarning');
 
-            // Enable flute select by default
+            // Show warning for Pack Path 3 or 4
+            if (packPath === '3' || packPath === '4') {
+                pathWarning.style.display = 'block';
+                lucide.createIcons(); // Re-render icons for warning
+            } else {
+                pathWarning.style.display = 'none';
+            }
+
+            // Only enable flute select if a pack path is actually selected (sequential input)
+            if (!packPath) {
+                fluteSelect.value = '';
+                fluteSelect.disabled = true;
+                updateCartonStyle();
+                return;
+            }
+
+            // Enable flute select once pack path is selected
             fluteSelect.disabled = false;
 
             // Get options
@@ -842,13 +885,21 @@
             clearDimensions();
             document.getElementById('results').classList.remove('show');
 
+            const packType = document.getElementById('packType').value;
+
             if (flute === 'bc-flute') {
                 cartonStyleSelect.innerHTML += '<option value="standard">Standard Carton - Singles</option>';
-                cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                // BS (Box Single - Single) does not have custom carton option
+                if (packType !== 'BS') {
+                    cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                }
                 cartonStyleSelect.disabled = false;
             } else if (flute === 'c-flute') {
-                cartonStyleSelect.innerHTML += '<option value="ratio">Ratio Carton</option>';
-                cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                cartonStyleSelect.innerHTML += '<option value="ratio">Ratio Carton (Standard Footprint)</option>';
+                // BS (Box Single - Single) does not have custom carton option
+                if (packType !== 'BS') {
+                    cartonStyleSelect.innerHTML += '<option value="custom">Custom Carton</option>';
+                }
                 cartonStyleSelect.disabled = false;
             } else {
                 cartonStyleSelect.disabled = true;
@@ -931,6 +982,7 @@
 
         function calculate() {
             const packType = document.getElementById('packType').value;
+            const packPath = document.getElementById('packPathCode').value;
             const flute = document.getElementById('flute').value;
             const cartonStyle = document.getElementById('cartonStyle').value;
             const selection = document.getElementById('cartonSelection').value;
@@ -945,6 +997,9 @@
                 alert('Please fill in all dimensions, select flute/carton, and enter a valid quantity.');
                 return;
             }
+
+            // Check if Pack Path is 3 or 4 - these are not included in pricing
+            const isPathExcluded = packPath === '3' || packPath === '4';
 
             checkQuantity();
 
@@ -987,6 +1042,14 @@
             // Check BS UH HERE - After Dimensions/Area, Before Price
             if (packType === 'BSUH') {
                 document.getElementById('customMessage').textContent = "Price will not be calculated for BS UH.";
+                document.getElementById('customMessage').style.display = 'block';
+                document.getElementById('results').classList.add('show');
+                return; // Stop before price calculations
+            }
+
+            // Check Pack Path 3 or 4 - After Dimensions/Area, Before Price
+            if (isPathExcluded) {
+                document.getElementById('customMessage').textContent = "Pack & Path Codes 3 and 4 are not included in this pricing program. Only area calculations are shown.";
                 document.getElementById('customMessage').style.display = 'block';
                 document.getElementById('results').classList.add('show');
                 return; // Stop before price calculations

@@ -1,6 +1,25 @@
 # Version History
 
-## v2.1 - Enhanced Specification Logic & Refinements (Current)
+## v2.2 - UI/UX Improvements & Business Logic Refinements (Current)
+**Release Date:** February 08, 2026
+
+### 🚀 Logic & Feature Updates
+- **Renamed Carton Type**: Changed "Ratio Carton" to **"Ratio Carton (Standard Footprint)"** for clarity.
+- **Pack Path 3 & 4 Exclusion**: Pack & Path Codes 3 and 4 are now explicitly excluded from pricing calculations.
+  - A warning message is displayed when these codes are selected.
+  - Only area calculations (dimensions, SQM) are shown; price fields are hidden.
+- **BS Pack Type Restriction**: When **BS (Box Single - Single)** is selected, the **Custom Carton** option is no longer available. Only standard/predefined cartons can be selected.
+- **Sequential Configuration Input**: Improved input flow to ensure fields are enabled in proper sequence:
+  - Pack Type → Pack & Path Code → Flute Type → Carton Type → Carton Selection → Dimensions.
+  - Each field is only enabled after the previous one is selected.
+
+### 🎨 UI Improvements
+- Added a visible **warning banner** before the Calculate button for Pack Path 3 & 4 selections.
+- Improved user guidance with clear messaging about pricing exclusions.
+
+---
+
+## v2.1 - Enhanced Specification Logic & Refinements
 **Release Date:** February 07, 2026
 
 ### 🚀 Logic & Feature Updates
