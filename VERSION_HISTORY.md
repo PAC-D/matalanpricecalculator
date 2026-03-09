@@ -1,7 +1,21 @@
 # Version History
 
-## v2.2 - UI/UX Improvements & Business Logic Refinements (Current)
-**Release Date:** February 08, 2026
+## v2.3 - Role-Based Access Control & Repository Migration (Current)
+**Release Date:** March 09, 2026
+
+### 🚀 Logic & Security Updates
+- **Role-Based Access Control (RBAC)**: Implemented new role-based views for the calculator:
+  - `admin` / `sales_team`: Full visibility including factory dimensions, total price, rebates, PacD fees, and supplier net revenue.
+  - `garment_supplier`: Restricted view showing only the Total Price (LC Price).
+  - `packaging_supplier`: Restricted view showing only the Packaging Supplier Net Revenue.
+- **Dynamic Subtitle**: Subtitle updates to "Only for Bangladesh" for non-admin roles to reflect regional limits.
+
+### 🛠️ Maintenance
+- **Repository Migration**: Migrated to a new GitHub remote (`PAC-D/matalanpricecalculator_sales_team.git`) and updated the primary branch to `main`.
+
+---
+
+## v2.2 - UI/UX Improvements & Business Logic Refinements
 
 ### 🚀 Logic & Feature Updates
 - **Renamed Carton Type**: Changed "Ratio Carton" to **"Ratio Carton (Standard Footprint)"** for clarity.
