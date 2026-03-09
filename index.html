@@ -545,18 +545,19 @@
 
                 <div class="input-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem;">
                     <div class="form-group">
-                        <label class="select-label">Pack Type</label>
-                        <select id="packType" class="custom-select" onchange="updatePackType()">
-                            <option value="">Select Pack Type</option>
-                            <option value="BS">BS (Box Single - Single)</option>
-                            <option value="B">B (Ratio)</option>
-                            <option value="BSUH">BS UH (Box Single - Up & Hanging)</option>
+                        <label class="select-label">Pack & Path Code</label>
+                        <select id="packPathCode" class="custom-select" onchange="updatePackType()">
+                            <option value="">Select Code</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="select-label">Pack & Path Code</label>
-                        <select id="packPathCode" class="custom-select" onchange="updateFluteAvailability()" disabled>
-                            <option value="">Select Code</option>
+                        <label class="select-label">Pack Type</label>
+                        <select id="packType" class="custom-select" onchange="updateFluteAvailability()" disabled>
+                            <option value="">Select Pack Type</option>
                         </select>
                     </div>
                 </div>
@@ -587,7 +588,7 @@
 
             <!-- Dimensions -->
             <div class="form-section">
-                <label class="section-label">Dimensions (mm)</label>
+                <label class="section-label">Outside Dimension (mm) - FEFCO 0201</label>
                 <div class="input-grid">
                     <div class="form-group floating-group">
                         <input type="number" id="length" placeholder=" " min="0" disabled>
@@ -616,19 +617,14 @@
             <!-- Marking (Matalan Specific) -->
             <div class="form-group" id="markingSection" style="display: none;">
                 <label class="section-label" style="color: #b91c1c;">Carton Marking (Qty < 100)</label>
-                        <div class="marking-options">
-                            <label class="marking-label">
-                                <input type="radio" name="marking" value="print" checked>
-                                Carton Print (+ $20.00 Set-up Fee)
-                            </label>
-                            <label class="marking-label">
-                                <input type="radio" name="marking" value="label">
-                                Label Print (+ $0.06 per label)
-                            </label>
-                            <label class="marking-label">
-                                <input type="radio" name="marking" value="none">
-                                None (Print at own factory)
-                            </label>
+                        <div class="marking-message"
+                            style="background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; padding: 1rem; border-radius: 0.5rem; font-size: 0.9rem; line-height: 1.5;">
+                            Cartons will be delivered with standard printing. You need to print the label through a
+                            separate label generator at your own / or from a nominated packaging supplier for
+                            $0.06/pic.<br><br>
+                            <a href="https://pac-d.github.io/Matalan-Label-Generator-v2/" target="_blank"
+                                style="color: var(--primary); font-weight: 600; text-decoration: underline;">Open Label
+                                Generator</a>
                         </div>
             </div>
 
@@ -640,7 +636,7 @@
             </div>
 
             <button class="primary-btn" onclick="calculate()">
-                <i data-lucide="calculator"></i> Calculate Price
+                <i data-lucide="calculator"></i> Calculate Price & SQM
             </button>
 
             <!-- Results -->
@@ -778,51 +774,30 @@
         }
 
         function updatePackType() {
-            const packType = document.getElementById('packType').value;
-            const packPath = document.getElementById('packPathCode');
+            const packPath = document.getElementById('packPathCode').value;
+            const packType = document.getElementById('packType');
             const flute = document.getElementById('flute');
 
-            // Reset Pack Path
-            packPath.innerHTML = '<option value="">Select Code</option>';
-            packPath.disabled = true;
+            // Reset Pack Type
+            packType.innerHTML = '<option value="">Select Pack Type</option>';
+            packType.disabled = true;
 
             // Reset/Disable Flute
+            flute.value = '';
             flute.disabled = true;
+            updateCartonStyle();
 
-            if (packType === 'BS') {
-                // BS (Single) -> 1, 2, 3, 4
-                packPath.add(new Option('1', '1'));
-                packPath.add(new Option('2', '2'));
-                packPath.add(new Option('3', '3'));
-                packPath.add(new Option('4', '4'));
-                packPath.disabled = false;
-
-                updateFluteAvailability();
-            } else if (packType === 'B') {
-                // B (Ratio) -> 1, 2, 3, 4
-                packPath.add(new Option('1', '1'));
-                packPath.add(new Option('2', '2'));
-                packPath.add(new Option('3', '3'));
-                packPath.add(new Option('4', '4'));
-                packPath.disabled = false;
-
-                updateFluteAvailability();
-            } else if (packType === 'BSUH') {
-                // BS UH -> 3, 4
-                packPath.add(new Option('3', '3'));
-                packPath.add(new Option('4', '4'));
-                packPath.disabled = false;
-
-                updateFluteAvailability();
-
-                // Force custom style for dimensions input if needed, or leave open
-                // User said "all 3 can have all flute type", so we allow flute selection first.
-            } else {
-                // Reset
-                flute.value = '';
-                flute.disabled = true;
-                updateCartonStyle();
+            if (packPath === '1' || packPath === '2') {
+                packType.add(new Option('BS (Box Single - Single)', 'BS'));
+                packType.add(new Option('B (Ratio)', 'B'));
+                packType.disabled = false;
+            } else if (packPath === '3' || packPath === '4') {
+                packType.add(new Option('B (Ratio)', 'B'));
+                packType.add(new Option('BS UH (Box Single - Up & Hanging)', 'BSUH'));
+                packType.disabled = false;
             }
+
+            updateFluteAvailability();
         }
 
         function updateFluteAvailability() {
@@ -839,15 +814,15 @@
                 pathWarning.style.display = 'none';
             }
 
-            // Only enable flute select if a pack path is actually selected (sequential input)
-            if (!packPath) {
+            // Only enable flute select if a pack type is actually selected (sequential input)
+            if (!packType) {
                 fluteSelect.value = '';
                 fluteSelect.disabled = true;
                 updateCartonStyle();
                 return;
             }
 
-            // Enable flute select once pack path is selected
+            // Enable flute select once pack type is selected
             fluteSelect.disabled = false;
 
             // Get options
@@ -867,6 +842,11 @@
             else if (packType === 'B' && (packPath === '1' || packPath === '2')) {
                 optBC.disabled = true;
                 if (fluteSelect.value === 'bc-flute') fluteSelect.value = '';
+            }
+            // Constraint: BSUH -> No C Flute
+            else if (packType === 'BSUH') {
+                optC.disabled = true;
+                if (fluteSelect.value === 'c-flute') fluteSelect.value = '';
             }
 
             // Trigger style update to ensure consistency
@@ -1049,7 +1029,7 @@
 
             // Check Pack Path 3 or 4 - After Dimensions/Area, Before Price
             if (isPathExcluded) {
-                document.getElementById('customMessage').textContent = "Pack & Path Codes 3 and 4 are not included in this pricing program. Only area calculations are shown.";
+                document.getElementById('customMessage').textContent = "For the Pack and Path 3&4 group, pricing of the cartons will not be available here, but only in SQM. Please talk to the nominated packaging suppliers.";
                 document.getElementById('customMessage').style.display = 'block';
                 document.getElementById('results').classList.add('show');
                 return; // Stop before price calculations
@@ -1106,15 +1086,6 @@
 
             // Calculate marking cost FIRST
             let markingCost = 0;
-            if (quantity < 100) {
-                const markingType = document.querySelector('input[name="marking"]:checked').value;
-
-                if (markingType === 'print') {
-                    markingCost = 20.00;
-                } else if (markingType === 'label') {
-                    markingCost = quantity * 0.06;
-                }
-            }
 
             // THEN calculate supplier price
             const supplierPrice = totalPrice - rebate - pacd + markingCost;
@@ -1131,16 +1102,6 @@
 
             // Handle marking price display and update labels
             let showMarkingRow = false;
-            if (quantity < 100) {
-                const markingType = document.querySelector('input[name="marking"]:checked').value;
-                const priceWithMarking = totalPrice + markingCost;
-                document.getElementById('markingPrice').textContent = '$' + priceWithMarking.toFixed(2);
-
-                if ((role === 'admin' || role === 'garment_supplier') && markingType !== 'none') {
-                    document.getElementById('markingPriceRow').style.display = 'flex';
-                    showMarkingRow = true;
-                }
-            }
 
             // Update Total Price label
             if (showMarkingRow) {
@@ -1206,11 +1167,7 @@
             // Marking Logic
             let markingText = "None";
             if (parseFloat(quantity) < 100) {
-                const markingType = document.querySelector('input[name="marking"]:checked');
-                if (markingType) {
-                    if (markingType.value === 'print') markingText = "Carton Print ($20 Fee)";
-                    else if (markingType.value === 'label') markingText = "Label Print";
-                }
+                markingText = "Standard Printing (Label required)";
             }
 
             // Gather Costs

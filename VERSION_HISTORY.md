@@ -1,6 +1,24 @@
 # Version History
 
-## v2.3 - Role-Based Access Control & Repository Migration (Current)
+## v2.4 - Business Logic Refinements & PDF Interactivity (Current)
+**Release Date:** March 09, 2026
+
+### 🚀 Logic & Feature Updates
+- **Low Quantity Label Requirement**: For quantities under 100, replaced extra markup charges with a mandatory Standard Printing (Label) requirement linking to the Matalan Label Generator (+ $0.06/pic).
+- **Sequential Configuration Input (Updated)**: Pack & Path Code must now be selected *before* Pack Type to enforce proper constraints:
+  - **Codes 1 & 2** → Only BS and B types are available.
+  - **Codes 3 & 4** → Only B and BSUH types are available.
+- **Dynamic Flute Validation**: Disabled C-Flute option when **BSUH** is selected.
+
+### 🎨 UI & PDF Improvements
+- **Clickable PDF Links**: Enabled interactive hyperlinks in the exported A4 PDF so the label generator URL can be clicked directly.
+- **UI Label Clarifications**: 
+  - Renamed "Dimensions (mm)" to "Outside Dimension (mm) - FEFCO 0201".
+  - Renamed the "Calculate Price" button to "Calculate Price & SQM".
+
+---
+
+## v2.3 - Role-Based Access Control & Repository Migration
 **Release Date:** March 09, 2026
 
 ### 🚀 Logic & Security Updates

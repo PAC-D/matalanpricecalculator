@@ -350,6 +350,7 @@
                 margin: 0,
                 filename: filename,
                 image: { type: 'jpeg', quality: 0.98 },
+                enableLinks: true,
                 html2canvas: {
                     scale: 2,              // 2x resolution for crisp output
                     useCORS: true,         // Allow cross-origin images
@@ -484,6 +485,27 @@
 
             specsHtml += `</div>`;
             specsDiv.innerHTML = specsHtml;
+
+            // Add Marking Message for Qty < 100
+            if (data.specs.marking === "Standard Printing (Label required)") {
+                const markingDiv = document.createElement('div');
+                markingDiv.style.marginTop = '1rem';
+                markingDiv.style.marginBottom = '1.5rem';
+                markingDiv.style.padding = '1rem';
+                markingDiv.style.background = '#fffbeb';
+                markingDiv.style.border = '1px solid #fcd34d';
+                markingDiv.style.borderRadius = '8px';
+
+                markingDiv.innerHTML = `
+                    <div style="color: #b91c1c; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 0.5rem;">Carton Marking (Qty < 100)</div>
+                    <div style="color: #92400e; font-size: 0.9rem; line-height: 1.5;">
+                        Cartons will be delivered with standard printing. You need to print the label through a separate label generator at your own / or from a nominated packaging supplier for <strong>$0.06/pic</strong>.<br>
+                        <a href="https://pac-d.github.io/Matalan-Label-Generator-v2/" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #00205b; font-weight: 600; text-decoration: underline;">https://pac-d.github.io/Matalan-Label-Generator-v2/</a>
+                    </div>
+                `;
+                // Insert right after specs
+                specsDiv.parentNode.insertBefore(markingDiv, specsDiv.nextSibling);
+            }
 
             // Dims (Row)
             const dimsDiv = document.getElementById('dims-container');
